@@ -1,2 +1,3 @@
 # Ronacorona-Dashboard
-practice for data visualization
+
+practice for data visualization with Pandas
