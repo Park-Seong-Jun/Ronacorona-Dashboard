@@ -12,19 +12,24 @@ totals_df = totals_df.rename(columns={"index": "Condition"})
 countries_df = daily_df[["Country_Region", "Confirmed", "Deaths", "Recovered"]]
 countries_df = countries_df.groupby("Country_Region").sum().reset_index()
 
-
-#전 세계 일별 현황(확진자, 사망자, 완치자)
-conditions = ["confirmed","deaths","recovered"] 
-
-def make_global_df(condition):
-    df = pd.read_csv(f"data/time_{condition}.csv")
-    df = df.drop(['Province/State', 'Country/Region','Lat','Long'], axis=1).sum().reset_index(name=f"{condition}_total")
-    df = df.rename(columns={"index": "Date"})
-    return df
-final_df =None
-for condition in conditions:
-    condition_df = make_global_df(condition)
-    if final_df is None:
-        final_df = condition_df
-    else:
-         final_df = final_df.merge(condition_df)
+#전세계 & 나라별 일일 현황 데이터
+def make_daily_df(country = None):
+    
+    def make_df(condition):
+        df = pd.read_csv(f"data/time_{condition}.csv")
+        if country != None:
+             df = df.loc[df["Country/Region"] == country]
+        df = df.drop(['Province/State', 'Country/Region','Lat','Long'], axis=1).sum().reset_index(name=f"{condition}_total")
+        df = df.rename(columns={"index": "Date"})
+        return df
+    
+    conditions = ["confirmed","deaths","recovered"] 
+    final_df = None
+    for condition in conditions:
+        condition_df = make_df(condition)
+        if final_df is None:
+            final_df = condition_df
+        else:
+             final_df = final_df.merge(condition_df)
+    return final_df
+make_daily_df()
