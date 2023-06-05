@@ -2,3 +2,4 @@
 data/
 .ipynb_checkpoints/Learning Pandas-checkpoint.ipynb
 .vscode/settings.json
+__pycache__/

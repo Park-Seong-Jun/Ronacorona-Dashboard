@@ -1,35 +1,40 @@
-import pandas as pd
+# Run this app with `python app.py` and
+# visit http://127.0.0.1:8050/ in your web browser.
 
-daily_df = pd.read_csv("data/daily_report.csv")
+from dash import Dash, html, dcc
+import plotly.express as px
+from data import countries_df
+from builder import make_table
 
-#일 총 전세계 총 현황
-totals_df = daily_df[["Confirmed", "Deaths", "Recovered"]
-                     ].sum().reset_index(name="Count")
 
-totals_df = totals_df.rename(columns={"index": "Condition"})
+stylesheets = [
+    "https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css",
+    "https://fonts.googleapis.com/css2?family=Open+Sans&display=swap",
+]
 
-# 국가별 현황
-countries_df = daily_df[["Country_Region", "Confirmed", "Deaths", "Recovered"]]
-countries_df = countries_df.groupby("Country_Region").sum().reset_index()
+app = Dash(__name__, external_stylesheets=stylesheets)
 
-#전세계 & 나라별 일일 현황 데이터
-def make_daily_df(country = None):
-    
-    def make_df(condition):
-        df = pd.read_csv(f"data/time_{condition}.csv")
-        if country != None:
-             df = df.loc[df["Country/Region"] == country]
-        df = df.drop(['Province/State', 'Country/Region','Lat','Long'], axis=1).sum().reset_index(name=f"{condition}_total")
-        df = df.rename(columns={"index": "Date"})
-        return df
-    
-    conditions = ["confirmed","deaths","recovered"] 
-    final_df = None
-    for condition in conditions:
-        condition_df = make_df(condition)
-        if final_df is None:
-            final_df = condition_df
-        else:
-             final_df = final_df.merge(condition_df)
-    return final_df
-make_daily_df()
+app.layout = html.Div(
+
+    [
+        html.Header(
+            [html.H1("Corona Dashboard", style={
+                "fontSize": 50, "color": "white"})],
+            style={"textAlign": "center", "paddingTop": "50px"}
+
+        ),
+        html.Div(
+            [html.Div(make_table(countries_df)
+
+
+                      )])
+    ], style={
+        "minHeight": "100vh",
+        "backgroundColor": "#111111",
+
+        "fontFamily": "Open Sans, sans-serif",
+    }
+)
+
+if __name__ == "__main__":
+    app.run_server(debug=True)
