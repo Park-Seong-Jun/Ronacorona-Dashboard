@@ -4,6 +4,7 @@
 from dash import Dash, html, dcc
 import plotly.express as px
 from data import countries_df
+from data import totals_df
 from builder import make_table
 
 
@@ -14,6 +15,27 @@ stylesheets = [
 
 app = Dash(__name__, external_stylesheets=stylesheets)
 
+bubble_map = px.scatter_geo(countries_df,
+                            size="Confirmed",
+                            size_max=40,
+                            hover_name='Country_Region',
+                            hover_data={
+
+                                "Country_Region": False,
+                                'Confirmed': ":,",
+                                'Deaths': ":,",
+                                'Recovered': ":,"},
+                            color="Confirmed",
+                            locations="Country_Region",
+                            locationmode="country names",
+                            template="plotly_dark",
+                            projection="natural earth"
+
+                            )
+
+total_bar_chart = px.bar(totals_df, x='Condition',
+                         y='Count', title="Total Cases")
+
 app.layout = html.Div(
 
     [
@@ -23,13 +45,18 @@ app.layout = html.Div(
             style={
                 "textAlign": "center",
                 "padding": "50px",
-                "border": "1px solid white"
+
             }
 
         ),
         html.Div(
-            [html.Div(style={"width": "50%", "border": "1px solid white"}),
-             html.Div(make_table(countries_df), style={"height": "300px", "width": "100%", "overflow": "auto"})], style={"border": "1px solid white", "display": "flex"})
+            [html.Div(
+                [dcc.Graph(figure=bubble_map)]),
+             html.Div(make_table(countries_df))], style={"display": "flex", }),
+
+        html.Div(
+            [dcc.Graph(figure=total_bar_chart)]
+        )
     ], style={
         "minHeight": "100vh",
         "backgroundColor": "#111111",

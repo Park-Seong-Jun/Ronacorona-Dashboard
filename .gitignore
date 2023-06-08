@@ -3,3 +3,4 @@ data/
 .ipynb_checkpoints/Learning Pandas-checkpoint.ipynb
 .vscode/settings.json
 __pycache__/
+.ipynb_checkpoints/plotly plots-checkpoint.ipynb

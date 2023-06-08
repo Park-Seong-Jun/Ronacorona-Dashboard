@@ -10,7 +10,7 @@ totals_df = totals_df.rename(columns={"index": "Condition"})
 
 # 국가별 현황
 countries_df = daily_df[["Country_Region", "Confirmed", "Deaths", "Recovered"]]
-countries_df = countries_df.groupby("Country_Region").sum().reset_index()
+countries_df = countries_df.groupby("Country_Region").sum().sort_values(by="Confirmed", ascending=False).reset_index()
 
 #전세계 & 나라별 일일 현황 데이터
 def make_daily_df(country = None):
