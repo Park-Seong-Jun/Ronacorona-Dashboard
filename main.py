@@ -4,6 +4,7 @@
 from dash import Dash, html, dcc, Input, Output
 import plotly.express as px
 from data import countries_df
+from data import make_daily_df
 from data import totals_df
 from data import dropDown_options
 from builder import make_table
@@ -52,6 +53,23 @@ total_bar_chart = px.bar(totals_df,
 total_bar_chart.update_layout(xaxis=dict(
     title="CONDITION"), yaxis=dict(title="COUNT"))
 
+def make_line_chart(country=None):
+    df = make_daily_df(country)
+    if country is None:
+        chart_title = "World daily Cases"
+    else:
+        chart_title=f'{country} daily Cases'
+    fig = px.line(df, x="Date", y=["confirmed_total","deaths_total","recovered_total"],
+                  title=chart_title,
+                  labels={"value":"Cases",
+                          "variable":"Condition"
+                  },
+                  hover_name='Date',
+                  hover_data={"Date": False,
+                              'value': ":,"},
+
+                 )
+    return fig
 
 #HTML 변환 부분
 
@@ -80,7 +98,7 @@ app.layout = html.Div(
                 html.Div(
                     [
                         dcc.Dropdown(
-                            id='country',
+                            id='country-input',
                             options=[
                             
                                 {'label': country_name, 'value': country_name}
@@ -89,9 +107,9 @@ app.layout = html.Div(
                             style={"color":"black"}
                         
                         ),
-                        
-                        html.H2(children="Hello,anonymous!",id="hello-output")
-                    ]
+                        dcc.Graph(id="country-output")
+                       
+                    ],style={"gridColumn":"span 3"}
                 )
             ],id="main_part", style={
                 "display":"grid",
@@ -107,12 +125,9 @@ app.layout = html.Div(
     }
 )
 
-@app.callback(Output("hello-output","children"),[Input("country","value")])
-def update_name(value):
-    if value is None:
-        return "Hello anonymous"
-    else:
-        return f"Hello {value}"
+@app.callback(Output("country-output","figure"),[Input("country-input","value")])
+def update_bar_chart(value):
+    return make_line_chart(value)
 
 if __name__ == "__main__":
     app.run_server(debug=True)
