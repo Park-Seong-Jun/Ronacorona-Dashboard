@@ -32,4 +32,7 @@ def make_daily_df(country = None):
         else:
              final_df = final_df.merge(condition_df)
     return final_df
-make_daily_df()
+
+df = countries_df.sort_values("Country_Region")
+df = df["Country_Region"].reset_index()
+dropDown_options = df["Country_Region"]
